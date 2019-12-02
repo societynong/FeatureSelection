@@ -294,20 +294,24 @@ def testSinglePoint(start,stop,step,featureName):
         acc = cross_val_score(model,X_test,y_test,cv=5,scoring='accuracy')#model.score(X_test,y_test)
         print("{} db, Acc:{},Mean:{}".format(snr,acc,np.mean(acc)))
 
-# from scipy.signal import stft
-# import cv2
+from scipy.signal import stft
+import cv2
 # from scipy import misc
 
-# def getSTFTFeature(sig,FS,win):
-#     f, tt, Zxx = stft(sig, FS, nperseg=win)
-#     Zxx = abs(Zxx)
-#     df = FS / win
-#     f = f[:int(FP / df) ]
-#     Zxx = Zxx[:int(FP / df) ][:]
-#     # imgZxx = np.uint16(lineMap(0,2 ** 16 - 1,Zxx))
-#     imgZxx = lineMap(0,1,Zxx)
-#     imgZxx = cv2.resize(imgZxx,(96,96))
-#     return imgZxx
+def getSTFTFeature(sig,fS,win):
+    f, tt, Zxx = stft(sig, fS, nperseg=win)
+    Zxx = abs(Zxx)
+    df = fS / win
+    f = f[:int(FP / df) ]
+    Zxx = Zxx[:int(FP / df) ][:]
+    # imgZxx = np.uint16(lineMap(0,2 ** 16 - 1,Zxx))
+    imgZxx = lineMap(0,1,Zxx)
+    imgZxx = imgZxx[::-1]
+    # imgZxx = cv2.resize(imgZxx,(96,96))
+    plt.figure()
+    plt.imshow(imgZxx)
+    plt.show()
+    return imgZxx
 
 # def testSTFT():
     
