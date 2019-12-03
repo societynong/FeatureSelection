@@ -4,6 +4,7 @@ import pickle as pkl
 import os
 import sys
 from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPClassifier
 DUR = 60*20
 FS = 10000
 N = int(DUR * FS)
@@ -398,6 +399,11 @@ def generateFakeSig(sig,fS,f0):
 
     return fakeSig
 
+def viewFeature(X,y,i):
+    plt.figure()
+    plt.plot(X[i])
+    plt.title(y[i])
+    plt.show()
 def testAcc(model,featureName,snr,fold = 5):
     filePath = "features/{}/{}.pkl".format(featureName,snr)
     if not os.path.exists(filePath):
@@ -411,7 +417,7 @@ def testAcc(model,featureName,snr,fold = 5):
         print("y.shape:{}".format(y.shape))
     X_train,X_test,y_train,y_test = train_test_split(X,y,test_size = 1 / fold,random_state = 3)
     
-    model.fit(X_test,y_test)
+    model.fit(X_train,y_train)
 
     print("Acc:{:.4f}".format(model.score(X_test,y_test)))
 
@@ -511,3 +517,37 @@ def getSinglePointSig(sig,fS,f0):
     return singlePointSig,singlePointSigF[f02N]
 
 
+
+def dataGenerationV2(featureName,snr,featureFun,exParas,f0s,nPoints = 200):
+    if not os.path.exists("features\\{}".format(featureName)):
+        os.makedirs("features\\{}".format(featureName))
+    filetoSave = "features\\{}\\{}.pkl".format(featureName,snr)
+    X = []
+    y = []
+    for lb,f0 in enumerate(f0s):
+        for i in range(nPoints):
+            x0, n0 = getSig(DUR, f0, FP, FS, snr)
+            # fN0 = getSiglePointFeature(n0,exParas)
+            fN0 = featureFun(n0,exParas).tolist()
+            X.append(fN0)
+            y.append(0) 
+            x0, n0 = getSig(DUR, f0, FP, FS, snr)
+            fSig = featureFun(x0+n0,exParas).tolist()
+            X.append(fSig)
+            y.append(lb+1)
+            print("{:.2f}% of {}db of {}".format(i / nPoints * 100,snr,f0))
+    
+    XList = X
+    yList = y
+
+    if os.path.exists(filetoSave):
+        with open(filetoSave,'rb') as f:
+            XOld,yOld = pkl.load(f)
+        XList += XOld.tolist()
+        yList += yOld.tolist()
+        
+
+    X = np.array(XList)
+    y = np.array(yList)
+    with open(filetoSave,'wb') as f:
+        pkl.dump((X,y),f)
