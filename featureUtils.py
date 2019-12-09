@@ -50,9 +50,9 @@ def srFunMine(a,b,h,sig):
     for i in range(1,len(u)):
         u[i] =u[i - 1] + h * (a * u[i - 1] - b * u[i - 1] ** 3 + sig[i - 1])
     return u
-def getSig(dur,f0,fP,fS,snr):
+def getSig(dur,f0,fP,fS,snr,ph = 0):
     t = np.arange(dur * fS) / fS
-    x0 = np.sin(2*np.pi*f0 * t)
+    x0 = np.sin(2*np.pi*f0 * t + ph)
     ns = np.random.randn(len(t))
     # ns = funs.butter_filter(ns,10,FP,FS,'lowpass')
     nsF = np.fft.fft(ns)
@@ -295,24 +295,24 @@ def testSinglePoint(start,stop,step,featureName):
         acc = cross_val_score(model,X_test,y_test,cv=5,scoring='accuracy')#model.score(X_test,y_test)
         print("{} db, Acc:{},Mean:{}".format(snr,acc,np.mean(acc)))
 
-from scipy.signal import stft
-import cv2
-# from scipy import misc
+# from scipy.signal import stft
+# import cv2
+# # from scipy import misc
 
-def getSTFTFeature(sig,fS,win):
-    f, tt, Zxx = stft(sig, fS, nperseg=win)
-    Zxx = abs(Zxx)
-    df = fS / win
-    f = f[:int(FP / df) ]
-    Zxx = Zxx[:int(FP / df) ][:]
-    # imgZxx = np.uint16(lineMap(0,2 ** 16 - 1,Zxx))
-    imgZxx = lineMap(0,1,Zxx)
-    imgZxx = imgZxx[::-1]
-    # imgZxx = cv2.resize(imgZxx,(96,96))
-    plt.figure()
-    plt.imshow(imgZxx)
-    plt.show()
-    return imgZxx
+# def getSTFTFeature(sig,fS,win):
+#     f, tt, Zxx = stft(sig, fS, nperseg=win)
+#     Zxx = abs(Zxx)
+#     df = fS / win
+#     f = f[:int(FP / df) ]
+#     Zxx = Zxx[:int(FP / df) ][:]
+#     # imgZxx = np.uint16(lineMap(0,2 ** 16 - 1,Zxx))
+#     imgZxx = lineMap(0,1,Zxx)
+#     imgZxx = imgZxx[::-1]
+#     # imgZxx = cv2.resize(imgZxx,(96,96))
+#     plt.figure()
+#     plt.imshow(imgZxx)
+#     plt.show()
+#     return imgZxx
 
 # def testSTFT():
     
